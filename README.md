@@ -3,3 +3,4 @@ Agent: Social Media Autopilot
 
 Alunos: 
 - Duarte Bravo Nª31385 duartebravo@ipvc.pt
+- Tomás Felicíssimo Nº31375 tomasfelicissimo@ipvc.pt
