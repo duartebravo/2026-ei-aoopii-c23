@@ -44,6 +44,7 @@ class ContentAgent:
             "- Adaptar o tom a voz da marca.\n"
             "- A caption deve ser natural, clara e pronta a publicar.\n"
             "- Usar entre 3 e 8 hashtags.\n"
+            "- Cada hashtag deve comecar obrigatoriamente com #.\n"
             "- O texto para imagem deve ser curto e facil de ler.\n"
             "- Nao inventar dados, estatisticas ou promessas falsas.\n\n"
             f"Marca: {form.brand_name}\n"

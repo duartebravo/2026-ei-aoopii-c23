@@ -1,8 +1,52 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+
 from backend.app.config import load_settings
 from backend.app.models.brand import CampaignForm
+from backend.app.models.post import GeneratedContent
 from backend.app.services.content_agent import ContentAgent
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+app = FastAPI(title="Social Media Autopilot")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/", include_in_schema=False)
+def web_app() -> FileResponse:
+    return FileResponse(PROJECT_ROOT / "index.html")
+
+
+@app.get("/styles.css", include_in_schema=False)
+def styles() -> FileResponse:
+    return FileResponse(PROJECT_ROOT / "styles.css", media_type="text/css")
+
+
+@app.post("/api/generate-post", response_model=GeneratedContent)
+def generate_post(form: CampaignForm) -> GeneratedContent:
+    settings = load_settings()
+
+    if not settings.gemini_api_key:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY nao configurada.")
+
+    try:
+        return ContentAgent(
+            api_key=settings.gemini_api_key,
+            model=settings.gemini_model,
+        ).generate(form)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Erro ao gerar conteudo: {exc}") from exc
 
 
 def main() -> None:
