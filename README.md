@@ -10,10 +10,10 @@ Alunos:
 
 O projeto implementa um agente de social media que recebe um tema, voz da marca e publico-alvo, gera uma publicacao para Instagram, agenda a publicacao, publica automaticamente e acompanha metricas de engagement para melhorar publicacoes futuras.
 
-Nesta fase inicial, o foco e apenas o primeiro passo do sistema:
+Nesta fase inicial, o foco e gerar o texto da publicacao e uma imagem sem texto:
 
 ```text
-Formulario do utilizador -> Gemini -> texto da publicacao
+Formulario do utilizador -> Gemini -> texto da publicacao + prompt visual -> OpenAI -> imagem
 ```
 
 ## Fase 1
@@ -31,9 +31,11 @@ Output:
 
 - caption;
 - hashtags;
-- texto curto para imagem futura;
 - call to action;
 - tom usado.
+- prompt visual para gerar imagem;
+- alt text da imagem;
+- imagem gerada em `outputs/generated-post-image.png`.
 
 ## Estrutura
 
@@ -47,6 +49,7 @@ backend/
       post.py
     services/
       content_agent.py
+      image_agent.py
 ```
 
 ## Como usar
@@ -56,8 +59,15 @@ backend/
 
 ```env
 GEMINI_API_KEY=...
-GEMINI_MODEL=gemini-2.5-pro
+GEMINI_TEXT_MODEL=gemini-2.5-flash
+OPENAI_API_KEY=...
+OPENAI_IMAGE_MODEL=gpt-image-2
+OPENAI_IMAGE_QUALITY=medium
+IMAGE_SIZE=1024x1280
 ```
+
+Nota: a geracao de imagem usa creditos da OpenAI API. Para controlar custos, recomenda-se
+usar `OPENAI_IMAGE_QUALITY=medium` durante testes.
 
 3. Instalar dependencias:
 
@@ -78,10 +88,13 @@ main.py
   recolhe o formulario
         ↓
 ContentAgent
-  envia o pedido para o Gemini
+  gera texto e prompt visual com Gemini
         ↓
 GeneratedContent
   devolve conteudo estruturado
+        ↓
+ImageAgent
+  gera imagem sem texto com OpenAI
 ```
 
 ## Proximos passos

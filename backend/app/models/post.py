@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class GeneratedContent(BaseModel):
     caption: str
     hashtags: list[str]
-    image_title: str
-    image_body: str
     call_to_action: str
     tone_used: str
+    image_prompt: str
+    image_alt_text: str

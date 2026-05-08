@@ -3,27 +3,46 @@ from __future__ import annotations
 from backend.app.config import load_settings
 from backend.app.models.brand import CampaignForm
 from backend.app.services.content_agent import ContentAgent
+from backend.app.services.image_agent import ImageAgent
 
 
 def main() -> None:
-    settings = load_settings()
+    try:
+        settings = load_settings()
 
-    print("Social Media Autopilot")
-    print("Formulario para gerar texto de publicacao com Gemini\n")
+        print("Social Media Autopilot")
+        print("Formulario para gerar texto de publicacao com Gemini\n")
 
-    form = collect_campaign_form()
-    content = ContentAgent(
-        api_key=settings.gemini_api_key,
-        model=settings.gemini_model,
-    ).generate(form)
+        form = collect_campaign_form()
 
-    print("\nConteudo gerado")
-    print("=" * 32)
-    print(f"\nCaption:\n{content.caption}")
-    print(f"\nHashtags:\n{' '.join(content.hashtags)}")
-    print(f"\nTexto para imagem:\n{content.image_title}\n{content.image_body}")
-    print(f"\nCTA:\n{content.call_to_action}")
-    print(f"\nTom usado:\n{content.tone_used}")
+        print("\nA gerar texto da publicacao e prompt visual...")
+        content = ContentAgent(
+            api_key=settings.gemini_api_key,
+            model=settings.gemini_text_model,
+        ).generate(form)
+
+        print("\nConteudo gerado")
+        print("=" * 32)
+        print(f"\nCaption:\n{content.caption}")
+        print(f"\nHashtags:\n{' '.join(content.hashtags)}")
+        print(f"\nCTA:\n{content.call_to_action}")
+        print(f"\nTom usado:\n{content.tone_used}")
+        print(f"\nPrompt visual:\n{content.image_prompt}")
+        print(f"\nAlt text:\n{content.image_alt_text}")
+
+        print("\nA gerar imagem com OpenAI...")
+        image_path = ImageAgent(
+            api_key=settings.openai_api_key,
+            model=settings.openai_image_model,
+            output_dir=settings.image_output_dir,
+            size=settings.image_size,
+            quality=settings.openai_image_quality,
+        ).generate(content.image_prompt)
+
+        print(f"\nImagem gerada:\n{image_path}")
+    except RuntimeError as exc:
+        print(f"\nErro: {exc}")
+        raise SystemExit(1) from exc
 
 
 def collect_campaign_form() -> CampaignForm:
