@@ -10,13 +10,18 @@ Alunos:
 
 O projeto implementa um agente de social media que recebe um tema, voz da marca e publico-alvo, gera uma publicacao para Instagram, agenda a publicacao, publica automaticamente e acompanha metricas de engagement para melhorar publicacoes futuras.
 
-Nesta fase inicial, o foco e gerar o texto da publicacao e uma imagem sem texto:
+Na fase atual, o projeto ja gera o texto da publicacao e uma imagem sem texto:
 
 ```text
 Formulario do utilizador -> Gemini -> texto da publicacao + prompt visual -> OpenAI -> imagem
 ```
 
-## Fase 1
+## Fase atual
+
+O sistema recolhe os dados principais da campanha, usa Gemini para gerar o texto
+da publicacao e um prompt visual, e usa OpenAI para gerar a imagem final do post.
+O texto da publicacao nao e inserido na imagem; a imagem gerada serve como visual
+do post e fica guardada localmente.
 
 Input:
 
@@ -32,7 +37,7 @@ Output:
 - caption;
 - hashtags;
 - call to action;
-- tom usado.
+- tom usado;
 - prompt visual para gerar imagem;
 - alt text da imagem;
 - imagem gerada em `outputs/generated-post-image.png`.
@@ -69,6 +74,9 @@ IMAGE_SIZE=1024x1280
 Nota: a geracao de imagem usa creditos da OpenAI API. Para controlar custos, recomenda-se
 usar `OPENAI_IMAGE_QUALITY=medium` durante testes.
 
+Neste projeto, foi carregado um saldo inicial de 10 euros em `https://platform.openai.com`
+para permitir a utilizacao do modelo `gpt-image-2` na geracao de imagens.
+
 3. Instalar dependencias:
 
 ```bash
@@ -81,7 +89,7 @@ pip install -e .
 python -m backend.app.main
 ```
 
-## Fluxo da fase 1
+## Fluxo atual
 
 ```text
 main.py
@@ -99,8 +107,8 @@ ImageAgent
 
 ## Proximos passos
 
-1. Melhorar o formulario se forem necessarios mais campos.
-2. Guardar os posts gerados como rascunhos.
-3. Criar geracao de imagem.
-4. Integrar publicacao na Meta Instagram API.
-5. Adicionar metricas e feedback loop.
+1. Sincronizar o projeto com uma rede social.
+2. Publicar automaticamente o texto e a imagem gerados.
+3. Guardar os posts gerados como rascunhos antes da publicacao.
+4. Adicionar agendamento de publicacoes.
+5. Adicionar metricas e feedback loop para melhorar publicacoes futuras.
