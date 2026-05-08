@@ -7,7 +7,12 @@ from backend.app.models.post import GeneratedContent
 class ContentAgent:
     """Generates Instagram post text from the campaign form using Gemini."""
 
-    def __init__(self, api_key: str, model: str) -> None:
+    def __init__(self, api_key: str | None, model: str) -> None:
+        if not api_key:
+            raise RuntimeError(
+                "GEMINI_API_KEY em falta. Confirma que o ficheiro .env existe na raiz do projeto."
+            )
+
         self.api_key = api_key
         self.model = model
 

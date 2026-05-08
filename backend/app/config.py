@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from os import environ, getenv
 from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -13,7 +15,7 @@ class Settings:
 
 
 def load_settings() -> Settings:
-    load_env_file(Path(".env"))
+    load_env_file(PROJECT_ROOT / ".env")
 
     return Settings(
         app_env=getenv("APP_ENV", "development"),
