@@ -120,11 +120,6 @@
             </article>
 
             <article class="result-block">
-              <h3>Texto curto para imagem futura</h3>
-              <p id="image-text-output">Sem conteúdo gerado.</p>
-            </article>
-
-            <article class="result-block">
               <h3>Call to action</h3>
               <p id="cta-output">Sem conteúdo gerado.</p>
             </article>
@@ -150,7 +145,6 @@
       const outputs = {
         caption: document.querySelector("#caption-output"),
         hashtags: document.querySelector("#hashtags-output"),
-        imageText: document.querySelector("#image-text-output"),
         cta: document.querySelector("#cta-output"),
         tone: document.querySelector("#tone-output"),
       };
@@ -160,9 +154,6 @@
       function setOutput(content = {}) {
         outputs.caption.textContent = content.caption || emptyText;
         outputs.hashtags.textContent = content.hashtags?.join(" ") || emptyText;
-        outputs.imageText.textContent =
-          [content.image_title, content.image_body].filter(Boolean).join("\n") ||
-          emptyText;
         outputs.cta.textContent = content.call_to_action || emptyText;
         outputs.tone.textContent = content.tone_used || emptyText;
       }
