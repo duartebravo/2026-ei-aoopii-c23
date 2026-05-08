@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class CampaignForm:
+class CampaignForm(BaseModel):
     brand_name: str
     topic: str
     brand_voice: str

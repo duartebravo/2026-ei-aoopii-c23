@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-PT">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Social Media Autopilot</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <h1>Social Media Autopilot</h1>
+        </div>
+        <span class="status-badge">Instagram</span>
+      </header>
+
+      <div class="workspace">
+        <section class="panel form-panel" aria-labelledby="form-title">
+          <div class="section-heading">
+            <p class="eyebrow">Formulário</p>
+            <h2 id="form-title">Nova publicação</h2>
+          </div>
+
+          <form id="campaign-form" class="campaign-form" action="#" method="post">
+            <div class="field">
+              <label for="brand_name">Nome da marca</label>
+              <input
+                id="brand_name"
+                name="brand_name"
+                type="text"
+                placeholder="Ex.: Padaria Aurora"
+                autocomplete="organization"
+                required
+              />
+            </div>
+
+            <div class="field">
+              <label for="topic">Tema do post</label>
+              <input
+                id="topic"
+                name="topic"
+                type="text"
+                placeholder="Ex.: Lançamento de pão artesanal"
+                required
+              />
+            </div>
+
+            <div class="field">
+              <label for="brand_voice">Voz da marca</label>
+              <input
+                id="brand_voice"
+                name="brand_voice"
+                type="text"
+                placeholder="Ex.: próxima, clara e confiante"
+                required
+              />
+            </div>
+
+            <div class="field">
+              <label for="target_audience">Público-alvo</label>
+              <input
+                id="target_audience"
+                name="target_audience"
+                type="text"
+                placeholder="Ex.: jovens adultos em Viana do Castelo"
+                required
+              />
+            </div>
+
+            <div class="field field-full">
+              <label for="objective">Objetivo do post</label>
+              <input
+                id="objective"
+                name="objective"
+                type="text"
+                placeholder="Ex.: aumentar vendas, gerar interação, divulgar uma novidade"
+                required
+              />
+            </div>
+
+            <div class="field field-full">
+              <label for="extra_notes">Notas adicionais</label>
+              <textarea
+                id="extra_notes"
+                name="extra_notes"
+                rows="5"
+                placeholder="Ex.: mencionar promoção de fim de semana, evitar emojis, incluir horário."
+              ></textarea>
+            </div>
+
+            <div class="form-actions field-full">
+              <button class="button button-secondary" type="reset">Limpar</button>
+              <button
+                id="generate-button"
+                class="button button-primary"
+                type="submit"
+              >
+                Gerar publicação
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="panel output-panel" aria-labelledby="output-title">
+          <div class="section-heading">
+            <p class="eyebrow">Output</p>
+            <h2 id="output-title">Conteúdo gerado</h2>
+          </div>
+
+          <div class="result-list" aria-live="polite">
+            <article class="result-block">
+              <h3>Caption</h3>
+              <p id="caption-output">Sem conteúdo gerado.</p>
+            </article>
+
+            <article class="result-block">
+              <h3>Hashtags</h3>
+              <p id="hashtags-output">Sem conteúdo gerado.</p>
+            </article>
+
+            <article class="result-block">
+              <h3>Call to action</h3>
+              <p id="cta-output">Sem conteúdo gerado.</p>
+            </article>
+
+            <article class="result-block">
+              <h3>Tom usado</h3>
+              <p id="tone-output">Sem conteúdo gerado.</p>
+            </article>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <script>
+      const apiUrl =
+        window.location.protocol === "file:"
+          ? "http://127.0.0.1:8000/api/generate-post"
+          : "/api/generate-post";
+
+      const form = document.querySelector("#campaign-form");
+      const button = document.querySelector("#generate-button");
+
+      const outputs = {
+        caption: document.querySelector("#caption-output"),
+        hashtags: document.querySelector("#hashtags-output"),
+        cta: document.querySelector("#cta-output"),
+        tone: document.querySelector("#tone-output"),
+      };
+
+      const emptyText = "Sem conteúdo gerado.";
+
+      function setOutput(content = {}) {
+        outputs.caption.textContent = content.caption || emptyText;
+        outputs.hashtags.textContent = content.hashtags?.join(" ") || emptyText;
+        outputs.cta.textContent = content.call_to_action || emptyText;
+        outputs.tone.textContent = content.tone_used || emptyText;
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const payload = Object.fromEntries(new FormData(form).entries());
+
+        button.disabled = true;
+        button.textContent = "A gerar...";
+
+        try {
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.detail || "Não foi possível gerar o conteúdo.");
+          }
+
+          setOutput(data);
+        } catch (error) {
+          alert(error.message);
+        } finally {
+          button.disabled = false;
+          button.textContent = "Gerar publicação";
+        }
+      });
+
+      form.addEventListener("reset", () => {
+        setTimeout(() => setOutput(), 0);
+      });
+    </script>
+  </body>
+</html>
