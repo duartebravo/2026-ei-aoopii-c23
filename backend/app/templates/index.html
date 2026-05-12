@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Social Media Autopilot</title>
+    <link rel="stylesheet" href="/static/app.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Social Media Autopilot</p>
+        <h1>Gerador de publicação</h1>
+      </div>
+      <span class="status-pill" id="statusPill">Pronto</span>
+    </header>
+
+    <main class="workspace">
+      <section class="panel form-panel" aria-labelledby="formTitle">
+        <div class="panel-heading">
+          <h2 id="formTitle">Campanha</h2>
+        </div>
+
+        <form id="campaignForm" class="campaign-form">
+          <label>
+            Nome da marca
+            <input name="brand_name" type="text" autocomplete="organization" required>
+          </label>
+
+          <label>
+            Tema do post
+            <input name="topic" type="text" required>
+          </label>
+
+          <label>
+            Voz da marca
+            <input name="brand_voice" type="text" required>
+          </label>
+
+          <label>
+            Público-alvo
+            <textarea name="target_audience" rows="3" required></textarea>
+          </label>
+
+          <label>
+            Objetivo do post
+            <textarea name="objective" rows="3" required></textarea>
+          </label>
+
+          <label>
+            Notas adicionais
+            <textarea name="extra_notes" rows="5"></textarea>
+          </label>
+
+          <button class="primary-action" id="generateContentButton" type="submit">
+            Gerar texto
+          </button>
+        </form>
+      </section>
+
+      <section class="panel result-panel" aria-labelledby="previewTitle">
+        <div class="panel-heading result-heading">
+          <div>
+            <h2 id="previewTitle">Pré-visualização</h2>
+            <p id="messageLine" class="message-line">Sem conteúdo gerado.</p>
+          </div>
+          <div class="toolbar">
+            <button type="button" id="copyButton" disabled>Copiar</button>
+            <button type="button" id="saveDraftButton" disabled>Guardar rascunho</button>
+          </div>
+        </div>
+
+        <div class="post-layout">
+          <div class="image-stage">
+            <img id="imagePreview" alt="" hidden>
+            <span id="imagePlaceholder">Imagem</span>
+          </div>
+
+          <div class="editor-grid">
+            <label class="wide">
+              Caption
+              <textarea id="captionField" rows="8"></textarea>
+            </label>
+
+            <label>
+              Hashtags
+              <textarea id="hashtagsField" rows="4"></textarea>
+            </label>
+
+            <label>
+              Call to action
+              <textarea id="ctaField" rows="4"></textarea>
+            </label>
+
+            <label class="wide">
+              Tom usado
+              <textarea id="toneField" rows="3"></textarea>
+            </label>
+
+            <label class="wide">
+              Alt text
+              <textarea id="altTextField" rows="3"></textarea>
+            </label>
+
+            <label class="wide">
+              Prompt visual
+              <textarea id="imagePromptField" rows="5"></textarea>
+            </label>
+          </div>
+
+          <button class="secondary-action" id="generateImageButton" type="button" disabled>
+            Gerar imagem
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
