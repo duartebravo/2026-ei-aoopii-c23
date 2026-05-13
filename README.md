@@ -89,6 +89,23 @@ pip install -e .
 python -m backend.app.main
 ```
 
+### Usar com pagina web local
+
+O fluxo do terminal continua disponivel, mas tambem pode ser usado no browser:
+
+```bash
+python -m backend.app.web
+```
+
+Depois abrir:
+
+```text
+http://127.0.0.1:8000
+```
+
+A pagina permite preencher o formulario, gerar o texto, editar o resultado,
+gerar a imagem e guardar um rascunho local em `outputs/drafts/`.
+
 ## Fluxo atual
 
 ```text
