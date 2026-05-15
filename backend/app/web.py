@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from backend.app.config import load_settings
 from backend.app.models.brand import CampaignForm
 from backend.app.models.post import GeneratedContent
+from backend.app.services.business_url_agent import BusinessUrlAgent
 from backend.app.services.content_agent import ContentAgent
 from backend.app.services.draft_store import DraftStore
 from backend.app.services.image_agent import ImageAgent
@@ -51,6 +52,10 @@ class ImagePayload(BaseModel):
     image_prompt: str = Field(min_length=1)
 
 
+class BusinessUrlPayload(BaseModel):
+    business_url: str = Field(min_length=1)
+
+
 class DraftPayload(BaseModel):
     form: CampaignPayload
     content: GeneratedContent
@@ -61,6 +66,20 @@ class DraftPayload(BaseModel):
 def index() -> HTMLResponse:
     html = (TEMPLATES_DIR / "index.html").read_text(encoding="utf-8")
     return HTMLResponse(html)
+
+
+@app.post("/api/analyze-business-url")
+def analyze_business_url(payload: BusinessUrlPayload) -> dict[str, object]:
+    current_settings = load_settings()
+    try:
+        suggestion = BusinessUrlAgent(
+            api_key=current_settings.gemini_api_key,
+            model=current_settings.gemini_text_model,
+        ).generate(payload.business_url)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return {"form": suggestion.model_dump()}
 
 
 @app.post("/api/generate-content")
