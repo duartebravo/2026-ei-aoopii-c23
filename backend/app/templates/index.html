@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Social Media Autopilot</title>
-    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/app.css?v=4">
   </head>
   <body>
     <header class="topbar">
@@ -21,7 +21,32 @@
           <h2 id="formTitle">Campanha</h2>
         </div>
 
-        <form id="campaignForm" class="campaign-form">
+        <div id="businessUrlStep" class="flow-step">
+          <h3>URL da campanha</h3>
+          <label>
+            URL do negócio
+            <input
+              id="businessUrlInput"
+              type="url"
+              inputmode="url"
+              autocomplete="url"
+              placeholder="https://"
+            >
+          </label>
+
+          <p id="urlFeedback" class="url-feedback" aria-live="polite"></p>
+
+          <div class="flow-actions">
+            <button class="primary-action" id="autoFillButton" type="button">
+              Seguinte
+            </button>
+            <button class="outline-action" id="manualEntryButton" type="button">
+              Não tenho URL
+            </button>
+          </div>
+        </div>
+
+        <form id="campaignForm" class="campaign-form" hidden>
           <label>
             Nome da marca
             <input name="brand_name" type="text" autocomplete="organization" required>
@@ -52,9 +77,14 @@
             <textarea name="extra_notes" rows="5"></textarea>
           </label>
 
-          <button class="primary-action" id="generateContentButton" type="submit">
-            Gerar texto
-          </button>
+          <div class="form-actions">
+            <button class="outline-action" id="backToUrlButton" type="button">
+              Voltar
+            </button>
+            <button class="primary-action" id="generateContentButton" type="submit">
+              Gerar texto
+            </button>
+          </div>
         </form>
       </section>
 
@@ -115,6 +145,6 @@
       </section>
     </main>
 
-    <script src="/static/app.js" defer></script>
+    <script src="/static/app.js?v=4" defer></script>
   </body>
 </html>
