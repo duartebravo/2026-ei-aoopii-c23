@@ -16,6 +16,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -63,7 +67,8 @@ button:disabled {
 }
 
 h1,
-h2 {
+h2,
+h3 {
   margin: 0;
   letter-spacing: 0;
 }
@@ -75,6 +80,12 @@ h1 {
 
 h2 {
   font-size: 1rem;
+}
+
+h3 {
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.2;
 }
 
 .status-pill {
@@ -146,13 +157,40 @@ h2 {
 }
 
 .campaign-form,
+.flow-step,
 .post-layout {
   padding: 20px;
 }
 
-.campaign-form {
+.campaign-form,
+.flow-step {
   display: grid;
   gap: 14px;
+}
+
+.flow-step {
+  gap: 18px;
+}
+
+.campaign-form {
+  border-top: 1px solid var(--line);
+}
+
+.url-feedback {
+  min-height: 20px;
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.url-feedback.busy,
+.url-feedback.success {
+  color: var(--accent-strong);
+}
+
+.url-feedback.error {
+  color: var(--warm);
 }
 
 label {
@@ -206,6 +244,40 @@ textarea:focus {
 .primary-action:hover:not(:disabled),
 .secondary-action:hover:not(:disabled) {
   background: var(--accent-strong);
+}
+
+.outline-action {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.outline-action:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+.flow-actions,
+.form-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.flow-actions {
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.flow-actions .primary-action,
+.flow-actions .outline-action {
+  min-height: 56px;
+  font-size: 1rem;
+}
+
+.form-actions {
+  grid-template-columns: minmax(96px, 0.34fr) minmax(0, 1fr);
 }
 
 .toolbar {
@@ -295,6 +367,11 @@ textarea:focus {
 
   .toolbar {
     justify-content: stretch;
+  }
+
+  .flow-actions,
+  .form-actions {
+    grid-template-columns: 1fr;
   }
 
   .toolbar button {

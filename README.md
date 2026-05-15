@@ -8,22 +8,35 @@ Alunos:
 
 ## Objetivo
 
-O projeto implementa um agente de social media que recebe um tema, voz da marca e publico-alvo, gera uma publicacao para Instagram, agenda a publicacao, publica automaticamente e acompanha metricas de engagement para melhorar publicacoes futuras.
+O projeto implementa um agente de social media que recebe um tema, voz da marca
+e publico-alvo, gera uma publicacao para Instagram, agenda a publicacao, publica
+automaticamente e acompanha metricas de engagement para melhorar publicacoes
+futuras.
 
-Na fase atual, o projeto ja gera o texto da publicacao e uma imagem sem texto:
+Na fase atual, o projeto ja permite preencher a campanha a partir do URL de um
+negocio, gera o texto da publicacao e gera uma imagem sem texto:
 
 ```text
-Formulario do utilizador -> Gemini -> texto da publicacao + prompt visual -> OpenAI -> imagem
+URL ou formulario manual -> Gemini -> formulario editavel
+Formulario confirmado -> Gemini -> texto da publicacao + prompt visual -> OpenAI -> imagem
 ```
 
 ## Fase atual
 
-O sistema recolhe os dados principais da campanha, usa Gemini para gerar o texto
-da publicacao e um prompt visual, e usa OpenAI para gerar a imagem final do post.
+O sistema pode analisar o URL de um negocio para preencher os dados principais
+da campanha de forma automatica. O utilizador tambem pode preencher tudo
+manualmente. Depois de confirmar ou editar os campos, usa Gemini para gerar o
+texto da publicacao e um prompt visual, e usa OpenAI para gerar a imagem final
+do post.
 O texto da publicacao nao e inserido na imagem; a imagem gerada serve como visual
 do post e fica guardada localmente.
 
-Input:
+Input inicial:
+
+- URL do negocio; ou
+- preenchimento manual.
+
+Formulario da campanha:
 
 - nome da marca;
 - tema do post;
@@ -103,14 +116,18 @@ Depois abrir:
 http://127.0.0.1:8000
 ```
 
-A pagina permite preencher o formulario, gerar o texto, editar o resultado,
+A pagina permite colocar o URL de um negocio para preencher a campanha,
+preencher manualmente quando nao existe URL, gerar o texto, editar o resultado,
 gerar a imagem e guardar um rascunho local em `outputs/drafts/`.
 
 ## Fluxo atual
 
 ```text
-main.py
-  recolhe o formulario
+web.py
+  recebe um URL ou preenchimento manual
+        ↓
+BusinessUrlAgent
+  pode preencher o formulario editavel com Gemini
         ↓
 ContentAgent
   gera texto e prompt visual com Gemini
