@@ -168,6 +168,10 @@ h3 {
   gap: 14px;
 }
 
+.flow-step {
+  gap: 18px;
+}
+
 .campaign-form {
   border-top: 1px solid var(--line);
 }
@@ -262,6 +266,14 @@ textarea:focus {
 
 .flow-actions {
   grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.flow-actions .primary-action,
+.flow-actions .outline-action {
+  min-height: 56px;
+  font-size: 1rem;
 }
 
 .form-actions {

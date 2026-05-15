@@ -43,8 +43,8 @@ businessUrlInput.addEventListener("keydown", (event) => {
 autoFillButton.addEventListener("click", async () => {
   const businessUrl = businessUrlInput.value.trim();
   if (!businessUrl) {
-    setError("Indica um URL ou escolhe escrever à mão.");
-    setUrlFeedback("Indica um URL ou escolhe escrever à mão.", "error");
+    setError("Insere um link ou usa Não tenho URL.");
+    setUrlFeedback("Insere um link ou usa Não tenho URL.", "error");
     return;
   }
 
