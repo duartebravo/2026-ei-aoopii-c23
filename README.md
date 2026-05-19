@@ -8,32 +8,39 @@ Alunos:
 
 ## Objetivo
 
-O projeto implementa um agente de social media que recebe um tema, voz da marca
-e publico-alvo, gera uma publicacao para Instagram, agenda a publicacao, publica
-automaticamente e acompanha metricas de engagement para melhorar publicacoes
-futuras.
+O Social Media Autopilot e um MVP academico de um agente de social media para
+ajudar pequenos negocios a criar publicacoes para Instagram. O projeto recolhe
+informacao sobre a marca/campanha, gera texto com IA, cria um prompt visual e
+pode gerar uma imagem sem texto para acompanhar a publicacao.
 
-Na fase atual, o projeto ja permite preencher a campanha a partir do URL de um
-negocio, gera o texto da publicacao e gera uma imagem sem texto:
-
-```text
-URL ou formulario manual -> Gemini -> formulario editavel
-Formulario confirmado -> Gemini -> texto da publicacao + prompt visual -> OpenAI -> imagem
-```
+O objetivo final do projeto e evoluir para um agente capaz de publicar,
+agendar e acompanhar metricas de engagement. Na fase atual, o foco esta na
+criacao assistida de conteudo e na preparacao de rascunhos locais.
 
 ## Fase atual
 
-O sistema pode analisar o URL de um negocio para preencher os dados principais
-da campanha de forma automatica. O utilizador tambem pode preencher tudo
-manualmente. Depois de confirmar ou editar os campos, usa Gemini para gerar o
-texto da publicacao e um prompt visual, e usa OpenAI para gerar a imagem final
-do post.
-O texto da publicacao nao e inserido na imagem; a imagem gerada serve como visual
-do post e fica guardada localmente.
+Nesta fase, o sistema ja permite iniciar uma campanha de duas formas:
+
+- inserir um URL de um negocio/campanha para preencher o formulario com Gemini;
+- preencher manualmente os dados da campanha.
+
+Depois de o formulario estar preenchido, o utilizador pode rever e editar os
+campos antes de gerar o texto. A geracao de texto devolve caption, hashtags,
+call to action, tom usado, alt text e prompt visual. A partir desse prompt, o
+sistema pode gerar uma imagem com OpenAI. A imagem nao contem texto; serve como
+visual de apoio para a publicacao.
+
+O projeto tem atualmente tres interfaces de utilizacao:
+
+- terminal, para testar o fluxo base;
+- pagina web local, para usar o fluxo completo no browser;
+- bot Telegram, para conversar com o Social Media Autopilot via `/start`.
+
+## Input
 
 Input inicial:
 
-- URL do negocio; ou
+- URL do negocio/campanha; ou
 - preenchimento manual.
 
 Formulario da campanha:
@@ -45,15 +52,18 @@ Formulario da campanha:
 - objetivo do post;
 - notas adicionais.
 
-Output:
+## Output
 
-- caption;
+O sistema pode produzir:
+
+- caption para Instagram;
 - hashtags;
 - call to action;
 - tom usado;
 - prompt visual para gerar imagem;
 - alt text da imagem;
-- imagem gerada em `outputs/generated-post-image.png`.
+- imagem gerada localmente;
+- rascunho guardado em `outputs/drafts/`.
 
 ## Estrutura
 
@@ -61,34 +71,56 @@ Output:
 backend/
   app/
     main.py
+    web.py
     config.py
+    bot/
+      bot.py
+      state.py
+      keyboards.py
+      handlers/
+        start.py
+        url_flow.py
+        form_flow.py
+        confirm_flow.py
+        generate_flow.py
     models/
       brand.py
       post.py
     services/
+      business_url_agent.py
       content_agent.py
       image_agent.py
+      draft_store.py
+    static/
+      app.css
+      app.js
+    templates/
+      index.html
 ```
 
 ## Como usar
 
 1. Criar um ficheiro `.env` com base em `.env.example`.
-2. Preencher a chave do Gemini:
+
+2. Preencher as variaveis necessarias:
 
 ```env
+APP_ENV=development
+
 GEMINI_API_KEY=...
 GEMINI_TEXT_MODEL=gemini-2.5-flash
+
 OPENAI_API_KEY=...
 OPENAI_IMAGE_MODEL=gpt-image-2
 OPENAI_IMAGE_QUALITY=medium
 IMAGE_SIZE=1024x1280
+
+IMAGE_OUTPUT_DIR=outputs
+
+TELEGRAM_BOT_TOKEN=...
 ```
 
-Nota: a geracao de imagem usa creditos da OpenAI API. Para controlar custos, recomenda-se
-usar `OPENAI_IMAGE_QUALITY=medium` durante testes.
-
-Neste projeto, foi carregado um saldo inicial de 10 euros em `https://platform.openai.com`
-para permitir a utilizacao do modelo `gpt-image-2` na geracao de imagens.
+Nota: `TELEGRAM_BOT_TOKEN` so e necessario para correr o bot Telegram.
 
 3. Instalar dependencias:
 
@@ -96,15 +128,13 @@ para permitir a utilizacao do modelo `gpt-image-2` na geracao de imagens.
 pip install -e .
 ```
 
-4. Executar:
+### Usar no terminal
 
 ```bash
 python -m backend.app.main
 ```
 
 ### Usar com pagina web local
-
-O fluxo do terminal continua disponivel, mas tambem pode ser usado no browser:
 
 ```bash
 python -m backend.app.web
@@ -116,33 +146,70 @@ Depois abrir:
 http://127.0.0.1:8000
 ```
 
-A pagina permite colocar o URL de um negocio para preencher a campanha,
-preencher manualmente quando nao existe URL, gerar o texto, editar o resultado,
-gerar a imagem e guardar um rascunho local em `outputs/drafts/`.
+Na pagina web, o utilizador pode inserir um URL, escolher "Nao tenho URL",
+preencher/editar o formulario, gerar texto, gerar imagem e guardar rascunho.
 
-## Fluxo atual
+### Usar com bot Telegram
+
+```bash
+python -m backend.app.bot.bot
+```
+
+No Telegram, iniciar conversa com:
 
 ```text
-web.py
-  recebe um URL ou preenchimento manual
+/start
+```
+
+O bot permite escolher entre enviar URL ou preencher manualmente. Depois mostra
+um resumo editavel, gera o conteudo, pergunta se deve gerar imagem e permite
+guardar o resultado como rascunho local.
+
+## Fluxo web atual
+
+```text
+URL ou preenchimento manual
         ↓
 BusinessUrlAgent
-  pode preencher o formulario editavel com Gemini
+  preenche formulario editavel com Gemini
         ↓
 ContentAgent
   gera texto e prompt visual com Gemini
         ↓
-GeneratedContent
-  devolve conteudo estruturado
-        ↓
 ImageAgent
   gera imagem sem texto com OpenAI
+        ↓
+DraftStore
+  guarda rascunho local
 ```
+
+## Fluxo do bot Telegram
+
+```text
+/start
+        ↓
+Escolher URL ou preenchimento manual
+        ↓
+Confirmar ou editar formulario
+        ↓
+Gerar conteudo
+        ↓
+Escolher se gera imagem
+        ↓
+Guardar ou descartar rascunho
+```
+
+## Notas
+
+- A geracao de imagem usa creditos da OpenAI API.
+- Para controlar custos, recomenda-se usar `OPENAI_IMAGE_QUALITY=medium`
+  durante testes.
+- O preenchimento por URL depende de o site estar publico e acessivel. Se o
+  site bloquear leitura automatica, o utilizador pode preencher manualmente.
+- O texto nao e inserido dentro da imagem gerada.
 
 ## Proximos passos
 
 1. Sincronizar o projeto com uma rede social.
 2. Publicar automaticamente o texto e a imagem gerados.
-3. Guardar os posts gerados como rascunhos antes da publicacao.
-4. Adicionar agendamento de publicacoes.
-5. Adicionar metricas e feedback loop para melhorar publicacoes futuras.
+
