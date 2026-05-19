@@ -17,6 +17,7 @@ class Settings:
     openai_image_quality: str
     image_size: str
     image_output_dir: Path
+    telegram_bot_token: str | None
 
 
 def load_settings() -> Settings:
@@ -31,6 +32,7 @@ def load_settings() -> Settings:
         openai_image_quality=getenv("OPENAI_IMAGE_QUALITY", "medium"),
         image_size=getenv("IMAGE_SIZE", "1024x1280"),
         image_output_dir=resolve_project_path(getenv("IMAGE_OUTPUT_DIR", "outputs")),
+        telegram_bot_token=getenv("TELEGRAM_BOT_TOKEN") or None,
     )
 
 
