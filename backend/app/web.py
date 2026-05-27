@@ -13,6 +13,7 @@ from backend.app.config import load_settings
 from backend.app.models.brand import CampaignForm
 from backend.app.models.post import GeneratedContent
 from backend.app.services.business_url_agent import BusinessUrlAgent
+from backend.app.services.bluesky_publisher import BlueskyPublisher
 from backend.app.services.content_agent import ContentAgent
 from backend.app.services.draft_store import DraftStore
 from backend.app.services.image_agent import ImageAgent
@@ -60,6 +61,11 @@ class DraftPayload(BaseModel):
     form: CampaignPayload
     content: GeneratedContent
     image_path: str | None = None
+
+
+class BlueskyPublishPayload(BaseModel):
+    content: GeneratedContent
+    image_path: str = Field(min_length=1)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -127,6 +133,42 @@ def save_draft(payload: DraftPayload) -> dict[str, str]:
         image_path=payload.image_path,
     )
     return {"draft_path": str(draft_path)}
+
+
+@app.post("/api/publish-bluesky")
+def publish_bluesky(payload: BlueskyPublishPayload) -> dict[str, str]:
+    current_settings = load_settings()
+    try:
+        image_path = resolve_generated_image_path(
+            payload.image_path,
+            current_settings.image_output_dir,
+        )
+        result = BlueskyPublisher(
+            handle=current_settings.bluesky_handle,
+            app_password=current_settings.bluesky_app_password,
+            service_url=current_settings.bluesky_service_url,
+        ).publish(payload.content, image_path=str(image_path))
+    except RuntimeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return {
+        "uri": result.uri,
+        "cid": result.cid,
+        "text": result.text,
+    }
+
+
+def resolve_generated_image_path(image_path: str, output_dir: Path) -> Path:
+    candidate = Path(image_path)
+    if not candidate.is_absolute():
+        candidate = output_dir / candidate
+
+    resolved = candidate.resolve()
+    resolved_output_dir = output_dir.resolve()
+    if not resolved.is_relative_to(resolved_output_dir):
+        raise RuntimeError("A imagem tem de estar dentro da pasta de outputs do projeto.")
+
+    return resolved
 
 
 def main() -> None:
