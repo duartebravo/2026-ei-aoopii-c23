@@ -11,6 +11,7 @@ const generateContentButton = document.querySelector("#generateContentButton");
 const generateImageButton = document.querySelector("#generateImageButton");
 const copyButton = document.querySelector("#copyButton");
 const saveDraftButton = document.querySelector("#saveDraftButton");
+const publishBlueskyButton = document.querySelector("#publishBlueskyButton");
 const imagePreview = document.querySelector("#imagePreview");
 const imagePlaceholder = document.querySelector("#imagePlaceholder");
 
@@ -109,6 +110,7 @@ form.addEventListener("submit", async (event) => {
     writeContent(data.content);
     resetImage();
     disableResultActions(false);
+    publishBlueskyButton.disabled = true;
     setReady("Texto gerado.");
   } catch (error) {
     setError(error.message);
@@ -136,6 +138,7 @@ generateImageButton.addEventListener("click", async () => {
     imagePreview.hidden = false;
     imagePlaceholder.hidden = true;
     saveDraftButton.disabled = false;
+    publishBlueskyButton.disabled = false;
     setReady("Imagem gerada.");
   } catch (error) {
     setError(error.message);
@@ -183,6 +186,35 @@ saveDraftButton.addEventListener("click", async () => {
   } finally {
     saveDraftButton.classList.remove("is-loading");
     saveDraftButton.disabled = false;
+  }
+});
+
+publishBlueskyButton.addEventListener("click", async () => {
+  if (!state.form) {
+    setError("Gera primeiro o texto da publicacao.");
+    return;
+  }
+
+  if (!state.imagePath) {
+    setError("Gera primeiro a imagem antes de publicar no Bluesky.");
+    return;
+  }
+
+  setBusy("A publicar no Bluesky...");
+  publishBlueskyButton.classList.add("is-loading");
+  publishBlueskyButton.disabled = true;
+
+  try {
+    const data = await postJson("/api/publish-bluesky", {
+      content: readContent(),
+      image_path: state.imagePath,
+    });
+    setReady(`Publicado no Bluesky: ${data.uri}`);
+  } catch (error) {
+    setError(error.message);
+  } finally {
+    publishBlueskyButton.classList.remove("is-loading");
+    publishBlueskyButton.disabled = !state.imagePath;
   }
 });
 
@@ -239,6 +271,7 @@ function resetImage() {
   imagePreview.removeAttribute("src");
   imagePreview.hidden = true;
   imagePlaceholder.hidden = false;
+  publishBlueskyButton.disabled = true;
 }
 
 function clearGeneratedState() {
@@ -295,6 +328,7 @@ function disableResultActions(disabled) {
   generateImageButton.disabled = disabled;
   copyButton.disabled = disabled;
   saveDraftButton.disabled = disabled;
+  publishBlueskyButton.disabled = true;
 }
 
 function setUrlActionsDisabled(disabled) {
