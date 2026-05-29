@@ -4,7 +4,7 @@ Agent: Social Media Autopilot
 
 Alunos:
 - Duarte Bravo Nª31385 duartebravo@ipvc.pt
-- Tomas Felicíssimo Nº31375 tomasfelicissimo@ipvc.pt
+- Tomas Felicissimo Nº31375 tomasfelicissimo@ipvc.pt
 
 ## Objetivo
 
@@ -213,7 +213,3 @@ Guardar ou descartar rascunho
 1. Sincronizar o projeto com uma rede social.
 2. Publicar automaticamente o texto e a imagem gerados.
 
-Foi criada uma analise separada com evidencias das APIs e dos bloqueios de
-publicacao automatica em cada rede social:
-
-- [README_REDES_SOCIAIS.md](README_REDES_SOCIAIS.md)
