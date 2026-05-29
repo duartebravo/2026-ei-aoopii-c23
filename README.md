@@ -216,4 +216,4 @@ Guardar ou descartar rascunho
 Foi criada uma analise separada com evidencias das APIs e dos bloqueios de
 publicacao automatica em cada rede social:
 
-- [README_REDES_SOCIAIS.md](README_REDES_SOCIAIS.md)
+- [README_REDES_SOCIAIS.md](Pesquisa.md)
