@@ -1,7 +1,5 @@
 # Evidencias de integracao com redes sociais
 
-Data de analise: 2026-05-25
-
 Este documento justifica os proximos passos do projeto:
 
 1. Sincronizar o projeto com uma rede social.
@@ -95,22 +93,48 @@ O Bluesky permite criar posts atraves do protocolo AT Protocol. Um post e um
 registo `app.bsky.feed.post` com texto e data de criacao. Para imagens, o
 ficheiro e carregado primeiro como `blob` e depois referenciado no post.
 
-Bloqueios para este projeto:
+Estado no projeto:
 
-- seria necessario implementar autenticacao AT Protocol;
-- a imagem local teria de ser convertida/carregada como `blob`;
-- as imagens tem limites proprios da plataforma, incluindo limite de tamanho;
-- nao foi escolhida como rede principal porque o objetivo do projeto esta focado
-  em Instagram.
+- a publicacao automatica no Bluesky foi implementada na pagina web;
+- o utilizador gera o texto e a imagem no fluxo normal do projeto;
+- depois de existir imagem gerada, o botao "Publicar no Bluesky" fica ativo;
+- o frontend chama o endpoint `/api/publish-bluesky`;
+- o backend usa o servico `BlueskyPublisher` para autenticar e publicar;
+- a autenticacao usa `BLUESKY_HANDLE` e `BLUESKY_APP_PASSWORD`;
+- a imagem local e preparada/comprimida, enviada para o Bluesky e associada ao
+  post;
+- o texto publicado junta caption, call to action e hashtags.
+
+Requisitos de configuracao:
+
+- conta Bluesky;
+- app password criada nas definicoes da conta Bluesky;
+- variaveis no ficheiro `.env`:
+
+```env
+BLUESKY_HANDLE=exemplo.bsky.social
+BLUESKY_APP_PASSWORD=...
+BLUESKY_SERVICE_URL=https://bsky.social
+```
+
+Limites encontrados:
+
+- o Bluesky tem limite de caracteres por post;
+- como o conteudo gerado foi pensado originalmente para Instagram, captions
+  longas podem ultrapassar esse limite;
+- neste MVP, a publicacao no Bluesky e feita como um unico post, por isso o
+  texto e encurtado automaticamente quando necessario;
+- a imagem tem limites proprios de tamanho, por isso o projeto usa Pillow para
+  preparar/comprimir a imagem antes do envio.
 
 Conclusao:
 
-O Bluesky e uma alternativa tecnicamente simples para publicacao automatica e
-foi escolhido como prova de conceito por permitir publicar texto e imagem local
-com menos requisitos externos do que Instagram, TikTok ou LinkedIn. Ainda assim,
-nao substitui o Instagram como rede social principal definida para o produto
-final.
-
-Fonte oficial:
+O Bluesky deixou de estar apenas analisado e passou a estar integrado como prova
+de conceito funcional na interface web. Foi escolhido porque permite publicar
+texto e imagem local com menos requisitos externos do que Instagram, TikTok ou
+LinkedIn: nao exige URL publico para a imagem, conta profissional, revisao da
+app ou permissoes complexas.
+Fontes oficiais:
 
 - https://docs.bsky.app/docs/tutorials/creating-a-post
+- https://docs.bsky.app/docs/advanced-guides/posts
