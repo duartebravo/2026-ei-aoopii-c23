@@ -16,6 +16,7 @@ O Social Media Autopilot ja gera os dados necessarios para preparar uma
 publicacao:
 
 - `caption`;
+- `caption_bluesky`;
 - `hashtags`;
 - `call_to_action`;
 - `image_alt_text`;
@@ -105,7 +106,8 @@ Estado no projeto:
 - a autenticacao usa `BLUESKY_HANDLE` e `BLUESKY_APP_PASSWORD`;
 - a imagem local e preparada/comprimida, enviada para o Bluesky e associada ao
   post;
-- o texto publicado junta caption, call to action e hashtags.
+- o texto publicado usa `caption_bluesky`, uma versao curta gerada de raiz com
+  call to action e entre uma e tres hashtags.
 
 Requisitos de configuracao:
 
@@ -125,7 +127,9 @@ Limites encontrados:
 - como o conteudo gerado foi pensado originalmente para Instagram, captions
   longas podem ultrapassar esse limite;
 - neste MVP, a publicacao no Bluesky e feita como um unico post, por isso o
-  texto e encurtado automaticamente quando necessario;
+  Gemini gera `caption_bluesky` com um maximo de 300 caracteres e frases
+  completas;
+- o publicador valida o limite antes do envio e nao corta a caption a meio;
 - a imagem tem limites proprios de tamanho, por isso o projeto usa Pillow para
   preparar/comprimir a imagem antes do envio.
 

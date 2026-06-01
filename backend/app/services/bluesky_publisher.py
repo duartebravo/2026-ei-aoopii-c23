@@ -72,55 +72,14 @@ class BlueskyPublisher:
         )
 
     def _build_post_text(self, content: GeneratedContent) -> str:
-        caption = content.caption.strip()
-        call_to_action = content.call_to_action.strip()
-        hashtags = self._format_hashtags(content.hashtags)
-
-        text = self._join_parts(caption, call_to_action, hashtags)
-        if len(text) <= BLUESKY_TEXT_LIMIT:
-            return text
-
-        hashtags = self._format_hashtags(content.hashtags[:3])
-        text = self._fit_with_suffix(caption, self._join_parts(call_to_action, hashtags))
-        if len(text) <= BLUESKY_TEXT_LIMIT:
-            return text
-
-        text = self._fit_with_suffix(caption, hashtags)
-        if len(text) <= BLUESKY_TEXT_LIMIT:
-            return text
-
-        return self._truncate(caption, BLUESKY_TEXT_LIMIT)
-
-    def _fit_with_suffix(self, caption: str, suffix: str) -> str:
-        if not suffix:
-            return self._truncate(caption, BLUESKY_TEXT_LIMIT)
-
-        caption_limit = BLUESKY_TEXT_LIMIT - len(suffix) - 2
-        if caption_limit < 40:
-            return self._truncate(caption, BLUESKY_TEXT_LIMIT)
-
-        return self._join_parts(self._truncate(caption, caption_limit), suffix)
-
-    def _format_hashtags(self, hashtags: list[str]) -> str:
-        cleaned = []
-        for raw_tag in hashtags:
-            tag = raw_tag.strip().replace(" ", "")
-            if not tag:
-                continue
-            if not tag.startswith("#"):
-                tag = f"#{tag.lstrip('#')}"
-            cleaned.append(tag)
-        return " ".join(cleaned)
-
-    def _join_parts(self, *parts: str) -> str:
-        return "\n\n".join(part for part in parts if part)
-
-    def _truncate(self, text: str, limit: int) -> str:
-        if len(text) <= limit:
-            return text
-        if limit <= 3:
-            return text[:limit]
-        return f"{text[: limit - 3].rstrip()}..."
+        text = content.caption_bluesky.strip()
+        if not text:
+            raise RuntimeError("A caption para Bluesky esta vazia.")
+        if len(text) > BLUESKY_TEXT_LIMIT:
+            raise RuntimeError(
+                f"A caption para Bluesky ultrapassa o limite de {BLUESKY_TEXT_LIMIT} caracteres."
+            )
+        return text
 
     def _prepare_image(self, image_path: str) -> bytes:
         path = Path(image_path)

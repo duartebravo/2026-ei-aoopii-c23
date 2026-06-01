@@ -22,6 +22,7 @@ def _formatar_conteudo(conteudo) -> str:
     return (
         "✨ <b>Conteúdo gerado:</b>\n\n"
         f"📝 <b>Caption:</b>\n{html.escape(conteudo.caption)}\n\n"
+        f"🦋 <b>Caption para Bluesky:</b>\n{html.escape(conteudo.caption_bluesky)}\n\n"
         f"#️⃣ <b>Hashtags:</b>\n{html.escape(hashtags)}\n\n"
         f"📣 <b>CTA:</b> {html.escape(conteudo.call_to_action)}\n\n"
         f"🎭 <b>Tom utilizado:</b> {html.escape(conteudo.tone_used)}\n\n"

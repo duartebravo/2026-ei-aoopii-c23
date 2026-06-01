@@ -24,6 +24,7 @@ def main() -> None:
         print("\nConteudo gerado")
         print("=" * 32)
         print(f"\nCaption:\n{content.caption}")
+        print(f"\nCaption para Bluesky:\n{content.caption_bluesky}")
         print(f"\nHashtags:\n{' '.join(content.hashtags)}")
         print(f"\nCTA:\n{content.call_to_action}")
         print(f"\nTom usado:\n{content.tone_used}")

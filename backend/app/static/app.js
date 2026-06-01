@@ -17,6 +17,7 @@ const imagePlaceholder = document.querySelector("#imagePlaceholder");
 
 const fields = {
   caption: document.querySelector("#captionField"),
+  captionBluesky: document.querySelector("#captionBlueskyField"),
   hashtags: document.querySelector("#hashtagsField"),
   callToAction: document.querySelector("#ctaField"),
   toneUsed: document.querySelector("#toneField"),
@@ -249,6 +250,7 @@ function requiredValue(data, name) {
 
 function writeContent(content) {
   fields.caption.value = content.caption || "";
+  fields.captionBluesky.value = content.caption_bluesky || "";
   fields.hashtags.value = Array.isArray(content.hashtags) ? content.hashtags.join(" ") : "";
   fields.callToAction.value = content.call_to_action || "";
   fields.toneUsed.value = content.tone_used || "";
@@ -259,6 +261,7 @@ function writeContent(content) {
 function readContent() {
   return {
     caption: fields.caption.value.trim(),
+    caption_bluesky: fields.captionBluesky.value.trim(),
     hashtags: fields.hashtags.value.split(/\s+/).filter(Boolean),
     call_to_action: fields.callToAction.value.trim(),
     tone_used: fields.toneUsed.value.trim(),
@@ -279,6 +282,7 @@ function clearGeneratedState() {
   state.imagePath = null;
   writeContent({
     caption: "",
+    caption_bluesky: "",
     hashtags: [],
     call_to_action: "",
     tone_used: "",

@@ -26,15 +26,15 @@ Nesta fase, o sistema ja permite iniciar uma campanha de duas formas:
 - preencher manualmente os dados da campanha.
 
 Depois de o formulario estar preenchido, o utilizador pode rever e editar os
-campos antes de gerar o texto. A geracao de texto devolve caption, hashtags,
-call to action, tom usado, alt text e prompt visual. A partir desse prompt, o
-sistema pode gerar uma imagem com OpenAI. A imagem nao contem texto; serve como
-visual de apoio para a publicacao.
+campos antes de gerar o texto. A geracao de texto devolve caption para
+Instagram, caption curta para Bluesky, hashtags, call to action, tom usado, alt
+text e prompt visual. A partir desse prompt, o sistema pode gerar uma imagem com
+OpenAI. A imagem nao contem texto; serve como visual de apoio para a publicacao.
 
 Depois de gerar a imagem, a pagina web e o bot Telegram permitem publicar
-diretamente no Bluesky. O texto publicado junta caption, call to action e
-hashtags. A imagem local e preparada e comprimida antes do envio quando
-necessario.
+diretamente no Bluesky. O texto publicado usa uma versao curta gerada de raiz
+para essa rede, ja com call to action e hashtags. A imagem local e preparada e
+comprimida antes do envio quando necessario.
 
 O projeto tem atualmente tres interfaces de utilizacao:
 
@@ -63,6 +63,7 @@ Formulario da campanha:
 O sistema pode produzir:
 
 - caption para Instagram;
+- caption curta para Bluesky, limitada a 300 caracteres;
 - hashtags;
 - call to action;
 - tom usado;
@@ -229,8 +230,9 @@ Publicar no Bluesky, guardar rascunho ou terminar
   site bloquear leitura automatica, o utilizador pode preencher manualmente.
 - O texto nao e inserido dentro da imagem gerada.
 - A publicacao no Bluesky requer uma imagem gerada e credenciais configuradas.
-- Como o Bluesky limita o tamanho do texto e da imagem, o projeto encurta o
-  texto e comprime a imagem automaticamente quando necessario.
+- Como o Bluesky limita o tamanho do texto e da imagem, o projeto gera uma
+  caption especifica com ate 300 caracteres e comprime a imagem automaticamente
+  quando necessario.
 
 ## Pesquisa sobre outras redes sociais
 
