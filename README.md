@@ -14,8 +14,9 @@ informacao sobre a marca/campanha, gera texto com IA, cria um prompt visual e
 pode gerar uma imagem sem texto para acompanhar a publicacao.
 
 O objetivo final do projeto e evoluir para um agente capaz de publicar,
-agendar e acompanhar metricas de engagement. Na fase atual, o foco esta na
-criacao assistida de conteudo e na preparacao de rascunhos locais.
+agendar e acompanhar metricas de engagement. Na fase atual, o sistema ja
+permite criar conteudo, gerar imagens, guardar rascunhos locais e publicar
+automaticamente no Bluesky como prova de conceito.
 
 ## Fase atual
 
@@ -29,6 +30,11 @@ campos antes de gerar o texto. A geracao de texto devolve caption, hashtags,
 call to action, tom usado, alt text e prompt visual. A partir desse prompt, o
 sistema pode gerar uma imagem com OpenAI. A imagem nao contem texto; serve como
 visual de apoio para a publicacao.
+
+Depois de gerar a imagem, a pagina web e o bot Telegram permitem publicar
+diretamente no Bluesky. O texto publicado junta caption, call to action e
+hashtags. A imagem local e preparada e comprimida antes do envio quando
+necessario.
 
 O projeto tem atualmente tres interfaces de utilizacao:
 
@@ -63,7 +69,8 @@ O sistema pode produzir:
 - prompt visual para gerar imagem;
 - alt text da imagem;
 - imagem gerada localmente;
-- rascunho guardado em `outputs/drafts/`.
+- rascunho guardado em `outputs/drafts/`;
+- publicacao automatica de texto e imagem no Bluesky.
 
 ## Estrutura
 
@@ -91,6 +98,7 @@ backend/
       content_agent.py
       image_agent.py
       draft_store.py
+      bluesky_publisher.py
     static/
       app.css
       app.js
@@ -118,9 +126,16 @@ IMAGE_SIZE=1024x1280
 IMAGE_OUTPUT_DIR=outputs
 
 TELEGRAM_BOT_TOKEN=...
+
+BLUESKY_HANDLE=exemplo.bsky.social
+BLUESKY_APP_PASSWORD=...
+BLUESKY_SERVICE_URL=https://bsky.social
 ```
 
 Nota: `TELEGRAM_BOT_TOKEN` so e necessario para correr o bot Telegram.
+As variaveis `BLUESKY_HANDLE` e `BLUESKY_APP_PASSWORD` sao necessarias apenas
+para publicar no Bluesky. Deve ser usada uma app password criada nas definicoes
+da conta Bluesky.
 
 3. Instalar dependencias:
 
@@ -147,7 +162,8 @@ http://127.0.0.1:8000
 ```
 
 Na pagina web, o utilizador pode inserir um URL, escolher "Nao tenho URL",
-preencher/editar o formulario, gerar texto, gerar imagem e guardar rascunho.
+preencher/editar o formulario, gerar texto, gerar imagem, guardar rascunho e
+publicar no Bluesky.
 
 ### Usar com bot Telegram
 
@@ -162,8 +178,9 @@ No Telegram, iniciar conversa com:
 ```
 
 O bot permite escolher entre enviar URL ou preencher manualmente. Depois mostra
-um resumo editavel, gera o conteudo, pergunta se deve gerar imagem e permite
-guardar o resultado como rascunho local.
+um resumo editavel, gera o conteudo e pergunta se deve gerar imagem. Quando
+existe uma imagem, permite publicar diretamente no Bluesky, guardar o resultado
+como rascunho local ou terminar sem guardar.
 
 ## Fluxo web atual
 
@@ -179,8 +196,10 @@ ContentAgent
 ImageAgent
   gera imagem sem texto com OpenAI
         ↓
-DraftStore
-  guarda rascunho local
+Escolher acao final
+        ↓
+DraftStore ou BlueskyPublisher
+  guarda rascunho local ou publica no Bluesky
 ```
 
 ## Fluxo do bot Telegram
@@ -196,7 +215,9 @@ Gerar conteudo
         ↓
 Escolher se gera imagem
         ↓
-Guardar ou descartar rascunho
+Escolher acao final
+        ↓
+Publicar no Bluesky, guardar rascunho ou terminar
 ```
 
 ## Notas
@@ -207,13 +228,22 @@ Guardar ou descartar rascunho
 - O preenchimento por URL depende de o site estar publico e acessivel. Se o
   site bloquear leitura automatica, o utilizador pode preencher manualmente.
 - O texto nao e inserido dentro da imagem gerada.
+- A publicacao no Bluesky requer uma imagem gerada e credenciais configuradas.
+- Como o Bluesky limita o tamanho do texto e da imagem, o projeto encurta o
+  texto e comprime a imagem automaticamente quando necessario.
+
+## Pesquisa sobre outras redes sociais
+
+Esta a ser feita uma pesquisa sobre as limitacoes de publicacao automatica
+noutras redes sociais, incluindo requisitos de autenticacao, tipos de conta,
+permissoes, revisoes de aplicacao e restricoes no envio de imagens.
+
+O documento de pesquisa esta disponivel em:
+
+- [Pesquisa sobre redes sociais](Pesquisa.md)
 
 ## Proximos passos
 
-1. Sincronizar o projeto com uma rede social.
-2. Publicar automaticamente o texto e a imagem gerados.
-
-Foi criada uma analise separada com evidencias das APIs e dos bloqueios de
-publicacao automatica em cada rede social:
-
-- [README_REDES_SOCIAIS.md](Pesquisa.md)
+1. Continuar a pesquisa sobre as limitacoes das restantes redes sociais.
+2. Avaliar qual deve ser a proxima integracao depois do Bluesky.
+3. Adicionar agendamento e metricas de engagement.

@@ -21,7 +21,12 @@ from backend.app.bot.handlers.confirm_flow import (
     receive_edited_field,
 )
 from backend.app.bot.handlers.form_flow import iniciar_manual, receive_field
-from backend.app.bot.handlers.generate_flow import handle_imagem, handle_rascunho
+from backend.app.bot.handlers.generate_flow import (
+    handle_guardar_rascunho,
+    handle_imagem,
+    handle_publicar_bluesky,
+    handle_terminar,
+)
 from backend.app.bot.handlers.start import cancel_command, start_command
 from backend.app.bot.handlers.url_flow import receive_url, solicitar_url
 from backend.app.bot.state import BotState
@@ -67,7 +72,11 @@ def _criar_conversation_handler() -> ConversationHandler:
             BotState.GENERATING_CONTENT: [],
             BotState.WAITING_IMAGE_CHOICE: [
                 CallbackQueryHandler(handle_imagem, pattern="^gerar_imagem:"),
-                CallbackQueryHandler(handle_rascunho, pattern="^guardar_rascunho:"),
+            ],
+            BotState.WAITING_POST_ACTION: [
+                CallbackQueryHandler(handle_publicar_bluesky, pattern="^publicar_bluesky$"),
+                CallbackQueryHandler(handle_guardar_rascunho, pattern="^guardar_rascunho$"),
+                CallbackQueryHandler(handle_terminar, pattern="^terminar$"),
             ],
         },
         fallbacks=[

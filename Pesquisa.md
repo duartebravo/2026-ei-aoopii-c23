@@ -95,10 +95,12 @@ ficheiro e carregado primeiro como `blob` e depois referenciado no post.
 
 Estado no projeto:
 
-- a publicacao automatica no Bluesky foi implementada na pagina web;
+- a publicacao automatica no Bluesky foi implementada na pagina web e no bot
+  Telegram;
 - o utilizador gera o texto e a imagem no fluxo normal do projeto;
 - depois de existir imagem gerada, o botao "Publicar no Bluesky" fica ativo;
 - o frontend chama o endpoint `/api/publish-bluesky`;
+- o bot Telegram reutiliza diretamente o servico `BlueskyPublisher`;
 - o backend usa o servico `BlueskyPublisher` para autenticar e publicar;
 - a autenticacao usa `BLUESKY_HANDLE` e `BLUESKY_APP_PASSWORD`;
 - a imagem local e preparada/comprimida, enviada para o Bluesky e associada ao
@@ -130,10 +132,10 @@ Limites encontrados:
 Conclusao:
 
 O Bluesky deixou de estar apenas analisado e passou a estar integrado como prova
-de conceito funcional na interface web. Foi escolhido porque permite publicar
-texto e imagem local com menos requisitos externos do que Instagram, TikTok ou
-LinkedIn: nao exige URL publico para a imagem, conta profissional, revisao da
-app ou permissoes complexas.
+de conceito funcional na interface web e no bot Telegram. Foi escolhido porque
+permite publicar texto e imagem local com menos requisitos externos do que
+Instagram, TikTok ou LinkedIn: nao exige URL publico para a imagem, conta
+profissional, revisao da app ou permissoes complexas.
 Fontes oficiais:
 
 - https://docs.bsky.app/docs/tutorials/creating-a-post
