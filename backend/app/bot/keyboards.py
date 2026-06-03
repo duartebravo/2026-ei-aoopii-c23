@@ -65,6 +65,9 @@ def teclado_acoes_publicacao(com_imagem: bool) -> InlineKeyboardMarkup:
         botoes.append([
             InlineKeyboardButton("🚀 Publicar no Bluesky", callback_data="publicar_bluesky")
         ])
+        botoes.append([
+            InlineKeyboardButton("📸 Publicar no Instagram", callback_data="publicar_instagram")
+        ])
     botoes.extend([
         [InlineKeyboardButton("💾 Guardar rascunho", callback_data="guardar_rascunho")],
         [InlineKeyboardButton("❌ Terminar", callback_data="terminar")],

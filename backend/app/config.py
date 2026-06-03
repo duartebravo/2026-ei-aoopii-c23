@@ -21,6 +21,14 @@ class Settings:
     bluesky_handle: str | None
     bluesky_app_password: str | None
     bluesky_service_url: str
+    instagram_account_id: str | None
+    instagram_access_token: str | None
+    instagram_api_version: str
+    instagram_base_url: str
+    public_media_base_url: str | None
+    supabase_url: str | None
+    supabase_service_role_key: str | None
+    supabase_bucket: str
 
 
 def load_settings() -> Settings:
@@ -39,6 +47,16 @@ def load_settings() -> Settings:
         bluesky_handle=getenv("BLUESKY_HANDLE") or None,
         bluesky_app_password=getenv("BLUESKY_APP_PASSWORD") or None,
         bluesky_service_url=getenv("BLUESKY_SERVICE_URL", "https://bsky.social"),
+        instagram_account_id=getenv("INSTAGRAM_ACCOUNT_ID") or None,
+        instagram_access_token=getenv("INSTAGRAM_ACCESS_TOKEN") or None,
+        instagram_api_version=getenv("INSTAGRAM_API_VERSION", "v22.0"),
+        instagram_base_url=getenv("INSTAGRAM_BASE_URL", "https://graph.instagram.com"),
+        public_media_base_url=getenv("PUBLIC_MEDIA_BASE_URL") or None,
+        supabase_url=getenv("SUPABASE_URL") or None,
+        supabase_service_role_key=(
+            getenv("SUPABASE_SERVICE_ROLE_KEY") or getenv("SUPABASE_SECRET_KEY") or None
+        ),
+        supabase_bucket=getenv("SUPABASE_BUCKET", "instagram-posts"),
     )
 
 
