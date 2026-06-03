@@ -18,6 +18,9 @@ class Settings:
     image_size: str
     image_output_dir: Path
     telegram_bot_token: str | None
+    bluesky_handle: str | None
+    bluesky_app_password: str | None
+    bluesky_service_url: str
 
 
 def load_settings() -> Settings:
@@ -33,6 +36,9 @@ def load_settings() -> Settings:
         image_size=getenv("IMAGE_SIZE", "1024x1280"),
         image_output_dir=resolve_project_path(getenv("IMAGE_OUTPUT_DIR", "outputs")),
         telegram_bot_token=getenv("TELEGRAM_BOT_TOKEN") or None,
+        bluesky_handle=getenv("BLUESKY_HANDLE") or None,
+        bluesky_app_password=getenv("BLUESKY_APP_PASSWORD") or None,
+        bluesky_service_url=getenv("BLUESKY_SERVICE_URL", "https://bsky.social"),
     )
 
 

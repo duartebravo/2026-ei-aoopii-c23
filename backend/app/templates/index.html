@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Social Media Autopilot</title>
-    <link rel="stylesheet" href="/static/app.css?v=4">
+    <link rel="stylesheet" href="/static/app.css?v=5">
   </head>
   <body>
     <header class="topbar">
@@ -97,6 +97,7 @@
           <div class="toolbar">
             <button type="button" id="copyButton" disabled>Copiar</button>
             <button type="button" id="saveDraftButton" disabled>Guardar rascunho</button>
+            <button type="button" id="publishBlueskyButton" disabled>Publicar no Bluesky</button>
           </div>
         </div>
 
@@ -110,6 +111,11 @@
             <label class="wide">
               Caption
               <textarea id="captionField" rows="8"></textarea>
+            </label>
+
+            <label class="wide">
+              Caption para Bluesky (máx. 300 caracteres)
+              <textarea id="captionBlueskyField" rows="5" maxlength="300"></textarea>
             </label>
 
             <label>
@@ -145,6 +151,6 @@
       </section>
     </main>
 
-    <script src="/static/app.js?v=4" defer></script>
+    <script src="/static/app.js?v=6" defer></script>
   </body>
 </html>

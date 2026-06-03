@@ -59,10 +59,14 @@ def teclado_imagem() -> InlineKeyboardMarkup:
     ])
 
 
-def teclado_rascunho() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("💾 Guardar rascunho", callback_data="guardar_rascunho:sim"),
-            InlineKeyboardButton("❌ Não guardar", callback_data="guardar_rascunho:nao"),
-        ]
+def teclado_acoes_publicacao(com_imagem: bool) -> InlineKeyboardMarkup:
+    botoes = []
+    if com_imagem:
+        botoes.append([
+            InlineKeyboardButton("🚀 Publicar no Bluesky", callback_data="publicar_bluesky")
+        ])
+    botoes.extend([
+        [InlineKeyboardButton("💾 Guardar rascunho", callback_data="guardar_rascunho")],
+        [InlineKeyboardButton("❌ Terminar", callback_data="terminar")],
     ])
+    return InlineKeyboardMarkup(botoes)

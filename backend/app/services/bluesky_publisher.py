@@ -1,0 +1,136 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from io import BytesIO
+from pathlib import Path
+
+from backend.app.models.post import GeneratedContent
+
+BLUESKY_TEXT_LIMIT = 300
+BLUESKY_IMAGE_LIMIT_BYTES = 2_000_000
+
+
+@dataclass(frozen=True)
+class BlueskyPublishResult:
+    uri: str
+    cid: str
+    text: str
+
+
+class BlueskyPublisher:
+    """Publishes generated content to Bluesky using the AT Protocol SDK."""
+
+    def __init__(
+        self,
+        handle: str | None,
+        app_password: str | None,
+        service_url: str = "https://bsky.social",
+    ) -> None:
+        if not handle:
+            raise RuntimeError("BLUESKY_HANDLE em falta no ficheiro .env.")
+        if not app_password:
+            raise RuntimeError("BLUESKY_APP_PASSWORD em falta no ficheiro .env.")
+
+        self.handle = handle
+        self.app_password = app_password
+        self.service_url = service_url
+
+    def publish(
+        self,
+        content: GeneratedContent,
+        image_path: str | None,
+    ) -> BlueskyPublishResult:
+        try:
+            from atproto import Client
+        except ImportError as exc:
+            raise RuntimeError(
+                "Dependencia em falta. Instala o projeto com: pip install -e ."
+            ) from exc
+
+        post_text = self._build_post_text(content)
+        client = Client(self.service_url)
+
+        try:
+            client.login(self.handle, self.app_password)
+
+            if image_path:
+                image_bytes = self._prepare_image(image_path)
+                response = client.send_image(
+                    text=post_text,
+                    image=image_bytes,
+                    image_alt=content.image_alt_text.strip() or "Imagem da publicacao.",
+                )
+            else:
+                response = client.send_post(post_text)
+        except Exception as exc:
+            raise RuntimeError(f"Nao foi possivel publicar no Bluesky: {exc}") from exc
+
+        return BlueskyPublishResult(
+            uri=str(getattr(response, "uri", "")),
+            cid=str(getattr(response, "cid", "")),
+            text=post_text,
+        )
+
+    def _build_post_text(self, content: GeneratedContent) -> str:
+        text = content.caption_bluesky.strip()
+        if not text:
+            raise RuntimeError("A caption para Bluesky esta vazia.")
+        if len(text) > BLUESKY_TEXT_LIMIT:
+            raise RuntimeError(
+                f"A caption para Bluesky ultrapassa o limite de {BLUESKY_TEXT_LIMIT} caracteres."
+            )
+        return text
+
+    def _prepare_image(self, image_path: str) -> bytes:
+        path = Path(image_path)
+        if not path.exists():
+            raise RuntimeError(f"Imagem nao encontrada: {image_path}")
+
+        image_bytes = path.read_bytes()
+
+        try:
+            from PIL import Image
+        except ImportError as exc:
+            if len(image_bytes) <= BLUESKY_IMAGE_LIMIT_BYTES:
+                return image_bytes
+            raise RuntimeError(
+                "Dependencia em falta. Instala o projeto com: pip install -e ."
+            ) from exc
+
+        try:
+            with Image.open(path) as source:
+                image = self._to_rgb(source)
+                original_max_side = max(image.size)
+                max_sides = (original_max_side, 1600, 1280, 1080, 900, 720)
+                for max_side in dict.fromkeys(max_sides):
+                    resized = image.copy()
+                    resized.thumbnail((max_side, max_side))
+                    for quality in (92, 88, 82, 76, 70, 64, 58, 52, 46, 40):
+                        output = BytesIO()
+                        resized.save(
+                            output,
+                            format="JPEG",
+                            quality=quality,
+                            optimize=True,
+                        )
+                        compressed = output.getvalue()
+                        if len(compressed) <= BLUESKY_IMAGE_LIMIT_BYTES:
+                            return compressed
+        except Exception as exc:
+            raise RuntimeError(f"Nao foi possivel preparar a imagem para o Bluesky: {exc}") from exc
+
+        if len(image_bytes) <= BLUESKY_IMAGE_LIMIT_BYTES:
+            return image_bytes
+
+        raise RuntimeError(
+            "A imagem continua acima do limite do Bluesky mesmo depois de comprimida."
+        )
+
+    def _to_rgb(self, image):
+        from PIL import Image
+
+        if image.mode in {"RGBA", "LA"}:
+            background = Image.new("RGB", image.size, (255, 255, 255))
+            background.paste(image, mask=image.getchannel("A"))
+            return background
+        return image.convert("RGB")

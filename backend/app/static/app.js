@@ -11,11 +11,13 @@ const generateContentButton = document.querySelector("#generateContentButton");
 const generateImageButton = document.querySelector("#generateImageButton");
 const copyButton = document.querySelector("#copyButton");
 const saveDraftButton = document.querySelector("#saveDraftButton");
+const publishBlueskyButton = document.querySelector("#publishBlueskyButton");
 const imagePreview = document.querySelector("#imagePreview");
 const imagePlaceholder = document.querySelector("#imagePlaceholder");
 
 const fields = {
   caption: document.querySelector("#captionField"),
+  captionBluesky: document.querySelector("#captionBlueskyField"),
   hashtags: document.querySelector("#hashtagsField"),
   callToAction: document.querySelector("#ctaField"),
   toneUsed: document.querySelector("#toneField"),
@@ -109,6 +111,7 @@ form.addEventListener("submit", async (event) => {
     writeContent(data.content);
     resetImage();
     disableResultActions(false);
+    publishBlueskyButton.disabled = true;
     setReady("Texto gerado.");
   } catch (error) {
     setError(error.message);
@@ -136,6 +139,7 @@ generateImageButton.addEventListener("click", async () => {
     imagePreview.hidden = false;
     imagePlaceholder.hidden = true;
     saveDraftButton.disabled = false;
+    publishBlueskyButton.disabled = false;
     setReady("Imagem gerada.");
   } catch (error) {
     setError(error.message);
@@ -186,6 +190,35 @@ saveDraftButton.addEventListener("click", async () => {
   }
 });
 
+publishBlueskyButton.addEventListener("click", async () => {
+  if (!state.form) {
+    setError("Gera primeiro o texto da publicacao.");
+    return;
+  }
+
+  if (!state.imagePath) {
+    setError("Gera primeiro a imagem antes de publicar no Bluesky.");
+    return;
+  }
+
+  setBusy("A publicar no Bluesky...");
+  publishBlueskyButton.classList.add("is-loading");
+  publishBlueskyButton.disabled = true;
+
+  try {
+    const data = await postJson("/api/publish-bluesky", {
+      content: readContent(),
+      image_path: state.imagePath,
+    });
+    setReady(`Publicado no Bluesky: ${data.uri}`);
+  } catch (error) {
+    setError(error.message);
+  } finally {
+    publishBlueskyButton.classList.remove("is-loading");
+    publishBlueskyButton.disabled = !state.imagePath;
+  }
+});
+
 function readForm() {
   const data = new FormData(form);
   return {
@@ -217,6 +250,7 @@ function requiredValue(data, name) {
 
 function writeContent(content) {
   fields.caption.value = content.caption || "";
+  fields.captionBluesky.value = content.caption_bluesky || "";
   fields.hashtags.value = Array.isArray(content.hashtags) ? content.hashtags.join(" ") : "";
   fields.callToAction.value = content.call_to_action || "";
   fields.toneUsed.value = content.tone_used || "";
@@ -227,6 +261,7 @@ function writeContent(content) {
 function readContent() {
   return {
     caption: fields.caption.value.trim(),
+    caption_bluesky: fields.captionBluesky.value.trim(),
     hashtags: fields.hashtags.value.split(/\s+/).filter(Boolean),
     call_to_action: fields.callToAction.value.trim(),
     tone_used: fields.toneUsed.value.trim(),
@@ -239,6 +274,7 @@ function resetImage() {
   imagePreview.removeAttribute("src");
   imagePreview.hidden = true;
   imagePlaceholder.hidden = false;
+  publishBlueskyButton.disabled = true;
 }
 
 function clearGeneratedState() {
@@ -246,6 +282,7 @@ function clearGeneratedState() {
   state.imagePath = null;
   writeContent({
     caption: "",
+    caption_bluesky: "",
     hashtags: [],
     call_to_action: "",
     tone_used: "",
@@ -295,6 +332,7 @@ function disableResultActions(disabled) {
   generateImageButton.disabled = disabled;
   copyButton.disabled = disabled;
   saveDraftButton.disabled = disabled;
+  publishBlueskyButton.disabled = true;
 }
 
 function setUrlActionsDisabled(disabled) {
