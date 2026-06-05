@@ -25,6 +25,7 @@ from backend.app.bot.handlers.generate_flow import (
     handle_guardar_rascunho,
     handle_imagem,
     handle_publicar_bluesky,
+    handle_publicar_instagram,
     handle_terminar,
 )
 from backend.app.bot.handlers.start import cancel_command, start_command
@@ -75,6 +76,7 @@ def _criar_conversation_handler() -> ConversationHandler:
             ],
             BotState.WAITING_POST_ACTION: [
                 CallbackQueryHandler(handle_publicar_bluesky, pattern="^publicar_bluesky$"),
+                CallbackQueryHandler(handle_publicar_instagram, pattern="^publicar_instagram$"),
                 CallbackQueryHandler(handle_guardar_rascunho, pattern="^guardar_rascunho$"),
                 CallbackQueryHandler(handle_terminar, pattern="^terminar$"),
             ],

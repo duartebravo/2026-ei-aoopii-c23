@@ -32,9 +32,12 @@ text e prompt visual. A partir desse prompt, o sistema pode gerar uma imagem com
 OpenAI. A imagem nao contem texto; serve como visual de apoio para a publicacao.
 
 Depois de gerar a imagem, a pagina web e o bot Telegram permitem publicar
-diretamente no Bluesky. O texto publicado usa uma versao curta gerada de raiz
-para essa rede, ja com call to action e hashtags. A imagem local e preparada e
-comprimida antes do envio quando necessario.
+diretamente no Bluesky e no Instagram atraves da Instagram Platform API. No caso
+do Bluesky, o texto publicado usa uma versao curta gerada de raiz para essa
+rede, ja com call to action e hashtags. A imagem local e preparada e comprimida
+antes do envio quando necessario. No caso do Instagram, a imagem e convertida
+para JPEG, enviada para Supabase Storage e publicada atraves do URL publico do
+bucket.
 
 O projeto tem atualmente tres interfaces de utilizacao:
 
@@ -71,7 +74,8 @@ O sistema pode produzir:
 - alt text da imagem;
 - imagem gerada localmente;
 - rascunho guardado em `outputs/drafts/`;
-- publicacao automatica de texto e imagem no Bluesky.
+- publicacao automatica de texto e imagem no Bluesky;
+- publicacao automatica de texto e imagem no Instagram via Supabase Storage.
 
 ## Estrutura
 
@@ -100,6 +104,8 @@ backend/
       image_agent.py
       draft_store.py
       bluesky_publisher.py
+      instagram_publisher.py
+      supabase_storage.py
     static/
       app.css
       app.js
@@ -131,12 +137,27 @@ TELEGRAM_BOT_TOKEN=...
 BLUESKY_HANDLE=exemplo.bsky.social
 BLUESKY_APP_PASSWORD=...
 BLUESKY_SERVICE_URL=https://bsky.social
+
+INSTAGRAM_ACCOUNT_ID=...
+INSTAGRAM_ACCESS_TOKEN=...
+INSTAGRAM_API_VERSION=v22.0
+INSTAGRAM_BASE_URL=https://graph.instagram.com
+
+SUPABASE_URL=https://projeto.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=...
+SUPABASE_BUCKET=instagram-posts
 ```
 
 Nota: `TELEGRAM_BOT_TOKEN` so e necessario para correr o bot Telegram.
 As variaveis `BLUESKY_HANDLE` e `BLUESKY_APP_PASSWORD` sao necessarias apenas
 para publicar no Bluesky. Deve ser usada uma app password criada nas definicoes
 da conta Bluesky.
+
+As variaveis `INSTAGRAM_ACCOUNT_ID` e `INSTAGRAM_ACCESS_TOKEN` sao necessarias
+para publicar no Instagram. As variaveis `SUPABASE_URL`,
+`SUPABASE_SERVICE_ROLE_KEY` e `SUPABASE_BUCKET` sao necessarias para enviar a
+imagem para um bucket publico do Supabase antes de publicar, porque a Meta nao
+consegue aceder a imagens servidas apenas em localhost.
 
 3. Instalar dependencias:
 
@@ -164,7 +185,7 @@ http://127.0.0.1:8000
 
 Na pagina web, o utilizador pode inserir um URL, escolher "Nao tenho URL",
 preencher/editar o formulario, gerar texto, gerar imagem, guardar rascunho e
-publicar no Bluesky.
+publicar no Bluesky ou no Instagram.
 
 ### Usar com bot Telegram
 
@@ -177,6 +198,9 @@ No Telegram, iniciar conversa com:
 ```text
 /start
 ```
+
+O bot Telegram permite gerar o conteudo, gerar imagem, guardar rascunho e
+publicar no Bluesky ou no Instagram.
 
 O bot permite escolher entre enviar URL ou preencher manualmente. Depois mostra
 um resumo editavel, gera o conteudo e pergunta se deve gerar imagem. Quando

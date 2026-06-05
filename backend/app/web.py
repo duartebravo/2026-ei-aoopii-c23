@@ -17,6 +17,8 @@ from backend.app.services.bluesky_publisher import BlueskyPublisher
 from backend.app.services.content_agent import ContentAgent
 from backend.app.services.draft_store import DraftStore
 from backend.app.services.image_agent import ImageAgent
+from backend.app.services.instagram_publisher import InstagramPublisher
+from backend.app.services.supabase_storage import SupabaseStorageUploader
 
 APP_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = APP_DIR / "templates"
@@ -64,6 +66,11 @@ class DraftPayload(BaseModel):
 
 
 class BlueskyPublishPayload(BaseModel):
+    content: GeneratedContent
+    image_path: str = Field(min_length=1)
+
+
+class InstagramPublishPayload(BaseModel):
     content: GeneratedContent
     image_path: str = Field(min_length=1)
 
@@ -155,6 +162,38 @@ def publish_bluesky(payload: BlueskyPublishPayload) -> dict[str, str]:
         "uri": result.uri,
         "cid": result.cid,
         "text": result.text,
+    }
+
+
+@app.post("/api/publish-instagram")
+def publish_instagram(payload: InstagramPublishPayload) -> dict[str, str]:
+    current_settings = load_settings()
+    try:
+        image_path = resolve_generated_image_path(
+            payload.image_path,
+            current_settings.image_output_dir,
+        )
+        result = InstagramPublisher(
+            account_id=current_settings.instagram_account_id,
+            access_token=current_settings.instagram_access_token,
+            public_media_base_url=current_settings.public_media_base_url,
+            output_dir=current_settings.image_output_dir,
+            api_version=current_settings.instagram_api_version,
+            base_url=current_settings.instagram_base_url,
+            image_uploader=SupabaseStorageUploader(
+                supabase_url=current_settings.supabase_url,
+                api_key=current_settings.supabase_service_role_key,
+                bucket=current_settings.supabase_bucket,
+            ),
+        ).publish(payload.content, image_path=str(image_path))
+    except RuntimeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return {
+        "media_id": result.media_id,
+        "container_id": result.container_id,
+        "text": result.text,
+        "image_url": result.image_url,
     }
 
 

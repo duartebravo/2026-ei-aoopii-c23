@@ -15,6 +15,8 @@ from backend.app.services.bluesky_publisher import BlueskyPublisher
 from backend.app.services.content_agent import ContentAgent
 from backend.app.services.draft_store import DraftStore
 from backend.app.services.image_agent import ImageAgent
+from backend.app.services.instagram_publisher import InstagramPublisher
+from backend.app.services.supabase_storage import SupabaseStorageUploader
 
 
 def _formatar_conteudo(conteudo) -> str:
@@ -131,7 +133,10 @@ async def handle_imagem(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             with open(caminho, "rb") as ficheiro_imagem:
                 await update.effective_chat.send_photo(
                     photo=ficheiro_imagem,
-                    caption=f"🖼️ Imagem gerada!\n\n<i>{html.escape(conteudo.image_alt_text)}</i>",
+                    caption=(
+                        "🖼️ Imagem gerada!\n\n"
+                        f"<i>{html.escape(conteudo.image_alt_text)}</i>"
+                    ),
                     parse_mode="HTML",
                 )
 
@@ -199,6 +204,69 @@ async def handle_publicar_bluesky(update: Update, context: ContextTypes.DEFAULT_
     except Exception as exc:
         await query.edit_message_text(
             f"❌ Não foi possível publicar no Bluesky.\n\n{exc}\n\n"
+            "Podes tentar novamente, guardar o rascunho ou terminar.",
+            reply_markup=teclado_acoes_publicacao(com_imagem=True),
+        )
+        return BotState.WAITING_POST_ACTION
+
+
+async def handle_publicar_instagram(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    conteudo = context.user_data.get("conteudo_gerado")
+    imagem_path = context.user_data.get("imagem_path")
+
+    if not conteudo:
+        context.user_data.clear()
+        await query.edit_message_text(
+            "❌ Não foi possível publicar: conteúdo não encontrado.\n\n"
+            "Usa /start para recomeçar."
+        )
+        return ConversationHandler.END
+
+    if not imagem_path:
+        await query.edit_message_text(
+            "❌ Gera primeiro uma imagem antes de publicar no Instagram.\n\n"
+            "Podes guardar o conteúdo como rascunho ou terminar.",
+            reply_markup=teclado_acoes_publicacao(com_imagem=False),
+        )
+        return BotState.WAITING_POST_ACTION
+
+    await query.edit_message_text("📸 A publicar no Instagram... Aguarda um momento.")
+
+    try:
+        settings = load_settings()
+        publicador = InstagramPublisher(
+            account_id=settings.instagram_account_id,
+            access_token=settings.instagram_access_token,
+            public_media_base_url=settings.public_media_base_url,
+            output_dir=settings.image_output_dir,
+            api_version=settings.instagram_api_version,
+            base_url=settings.instagram_base_url,
+            image_uploader=SupabaseStorageUploader(
+                supabase_url=settings.supabase_url,
+                api_key=settings.supabase_service_role_key,
+                bucket=settings.supabase_bucket,
+            ),
+        )
+        resultado = await asyncio.to_thread(
+            publicador.publish,
+            conteudo,
+            imagem_path,
+        )
+        await query.edit_message_text(
+            "✅ Publicação enviada para o Instagram!\n\n"
+            f"<code>{html.escape(resultado.media_id)}</code>\n\n"
+            "Usa /start para criar uma nova publicação.",
+            parse_mode="HTML",
+        )
+        context.user_data.clear()
+        return ConversationHandler.END
+
+    except Exception as exc:
+        await query.edit_message_text(
+            f"❌ Não foi possível publicar no Instagram.\n\n{exc}\n\n"
             "Podes tentar novamente, guardar o rascunho ou terminar.",
             reply_markup=teclado_acoes_publicacao(com_imagem=True),
         )
