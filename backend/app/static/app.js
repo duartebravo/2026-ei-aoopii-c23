@@ -12,6 +12,7 @@ const generateImageButton = document.querySelector("#generateImageButton");
 const copyButton = document.querySelector("#copyButton");
 const saveDraftButton = document.querySelector("#saveDraftButton");
 const publishBlueskyButton = document.querySelector("#publishBlueskyButton");
+const publishInstagramButton = document.querySelector("#publishInstagramButton");
 const imagePreview = document.querySelector("#imagePreview");
 const imagePlaceholder = document.querySelector("#imagePlaceholder");
 
@@ -112,6 +113,7 @@ form.addEventListener("submit", async (event) => {
     resetImage();
     disableResultActions(false);
     publishBlueskyButton.disabled = true;
+    publishInstagramButton.disabled = true;
     setReady("Texto gerado.");
   } catch (error) {
     setError(error.message);
@@ -140,6 +142,7 @@ generateImageButton.addEventListener("click", async () => {
     imagePlaceholder.hidden = true;
     saveDraftButton.disabled = false;
     publishBlueskyButton.disabled = false;
+    publishInstagramButton.disabled = false;
     setReady("Imagem gerada.");
   } catch (error) {
     setError(error.message);
@@ -219,6 +222,35 @@ publishBlueskyButton.addEventListener("click", async () => {
   }
 });
 
+publishInstagramButton.addEventListener("click", async () => {
+  if (!state.form) {
+    setError("Gera primeiro o texto da publicacao.");
+    return;
+  }
+
+  if (!state.imagePath) {
+    setError("Gera primeiro a imagem antes de publicar no Instagram.");
+    return;
+  }
+
+  setBusy("A publicar no Instagram...");
+  publishInstagramButton.classList.add("is-loading");
+  publishInstagramButton.disabled = true;
+
+  try {
+    const data = await postJson("/api/publish-instagram", {
+      content: readContent(),
+      image_path: state.imagePath,
+    });
+    setReady(`Publicado no Instagram: ${data.media_id}`);
+  } catch (error) {
+    setError(error.message);
+  } finally {
+    publishInstagramButton.classList.remove("is-loading");
+    publishInstagramButton.disabled = !state.imagePath;
+  }
+});
+
 function readForm() {
   const data = new FormData(form);
   return {
@@ -275,6 +307,7 @@ function resetImage() {
   imagePreview.hidden = true;
   imagePlaceholder.hidden = false;
   publishBlueskyButton.disabled = true;
+  publishInstagramButton.disabled = true;
 }
 
 function clearGeneratedState() {
@@ -333,6 +366,7 @@ function disableResultActions(disabled) {
   copyButton.disabled = disabled;
   saveDraftButton.disabled = disabled;
   publishBlueskyButton.disabled = true;
+  publishInstagramButton.disabled = true;
 }
 
 function setUrlActionsDisabled(disabled) {
