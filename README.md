@@ -316,3 +316,18 @@ e restricoes de publicacao automatica noutras redes sociais esta disponivel em:
   comprimida automaticamente quando necessario.
 - O Instagram usa a caption principal, call to action e hashtags, respeitando o
   limite de 2200 caracteres.
+
+
+## Demonstração
+
+### Fluxo Mobile / Telegram
+
+<img src="Videos/fluxo-mobile.gif" width="280" alt="Demonstração do bot Telegram">
+
+[Ver vídeo completo](Videos/fluxo-mobile.mp4)
+
+### Fluxo Web
+
+<img src="Videos/fluxo-web.gif" width="700" alt="Demonstração da interface web">
+
+[Ver vídeo completo](Videos/fluxo-web.mp4)
